@@ -1,0 +1,30 @@
+[
+    {
+        "id": 1,
+        "video": "https://imagecdn.99acres.com/hls/case14/master.m3u8",
+        "heading":"Heading 1",
+        "description": "description 1",
+        "component": "component1"
+    },
+    {
+        "id": 2,
+        "video": "https://imagecdn.99acres.com/hls/case13/master.m3u8",
+        "heading":"Heading 2",
+        "description": "description 2",
+        "component": "component2"
+    },
+    {
+        "id": 3,
+        "video": "https://imagecdn.99acres.com/hls/case12/master.m3u8",
+        "heading":"Heading 3",
+        "description": "description 3",
+        "component": "component3"
+    },
+    {
+        "id": 4,
+        "video": "https://imagecdn.99acres.com/hls/case13/master.m3u8",
+        "heading":"Heading 4",
+        "description": "description 4",
+        "component": "component4"
+    }
+]
