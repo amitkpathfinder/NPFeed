@@ -1,0 +1,51 @@
+.main-frame {
+  width: 360px;
+  min-height: 100vh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px 16px 24px 16px;
+  box-sizing: border-box;
+  font-family: 'Outfit', Arial, sans-serif;
+}
+.title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.faqs-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #3A4D47;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.faqs-title {
+  font-size: 24px;
+  font-weight: 400;
+  color: #1A1B1F;
+  margin: 0;
+}
+.accordion-list {
+  width: 328px;
+  background: #FAFBFF;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-sizing: border-box;
+  padding: 0;
+}
+.accordion-item {
+  width: 100%;
+}
+.accordion-surface {
+  background: #EDF3F1;
+  border-radius: 16px;
+  padding: 20px 16px;
+  font-size: 16px;
+  color: #1A1B1F;
+  margin: 0;
+  box-sizing: border-box;
+} 

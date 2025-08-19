@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { 
   View, 
   StyleSheet, 
@@ -6,48 +6,172 @@ import {
 } from 'react-native';
 import Video from 'react-native-video';
 
-const VideoPlayer = ({
+const VideoPlayer = React.forwardRef(({
   id,
   src,
   isPaused,
   repeat=false,
+  controls=false,
+  onBuffer,
   poster,
   onLoad,
   onEnd=null,
   onReadyForDisplay,
   onProgress,
   currentTime,
-  resizeMode
-}) => {
-  const videoRef = useRef(null);
+  resizeMode,
+  NPFeedPreload=false
+}, ref) => {
+  // const reference = useRef(null);
   // Handle seeking to the currentTime when the video is remounted or paused state changes
   // useEffect(() => {
-  //   if (videoRef.current && currentTime > 0 && isPaused) {
+  //   if (reference.current && currentTime > 0 && isPaused) {
   //     // When paused, ensure we're at the right position when it gets played again
-  //     videoRef.current.seek(currentTime);
+  //     reference.current.seek(currentTime);
   //   }
   // }, [isPaused]);
+
+  const reference = useRef(null);
+  const onreadyReference = useRef(false);
+  const onLoadReference = useRef(false);
+ 
+  useEffect(() => {
+    
+    // PAUSE Tracking
+    if(reference.current && onreadyReference.current && isPaused){
+     
+      reference.current = true;
+      
+      console.log("Video Tracking : ONACTION_PLAYBACK_PAUSE : ",id);
+      // console.log(`Video playback time : ${id} `,reference.current);
+      
+    }
+    else
+    if(reference.current && onreadyReference.current && !isPaused){
+      // PLAYBACK_START
+   
+
+    console.log("Video Tracking : ONACTION_PLAYBACK_START : ",id);
+    // console.log(`Video playback time : ${id} `,reference.current);
+
+    }
+
+  },[isPaused]);
+
+  const override_onReadyForDisplay = () => {
+    console.log('......................Entered');
+   if (!onreadyReference.current && onLoadReference.current && !isPaused) {
+      console.log(`Video Tracking : PLAYBACK_START ${id}: onReadyForDisplay`);
+      console.log(currentTime)
+      onreadyReference.current=true;
+    } 
+    else{
+      console.log(`Already Called ${id}: onReadyForDisplay`)
+    }
+    if(onReadyForDisplay) {
+        onReadyForDisplay();
+      }
+  }
+
+  const onLoadHandle = (event) => {
+    console.log(`On Load Handle received:${id}`);
+    onLoadReference.current = true;
+    if(onLoad){
+      onLoad(event);
+    }
+  };
+
+  const onPlaybackStateChangedHandle = (data) => {
+    console.log('On Playback State Changed:', data);
+  };
+
+  const onTimedMetadataHandle = (data) => {
+    console.log('onTimedMetadataHandle', data);
+  };
+
+  const handleBandwidth = (event) => {
+    console.log('Bandwidth update received:', event);
+  };
+
+  const handleVideoEnd = () => {
+    console.log(`Video ended for ID: ${id}`);
+    
+    // Call the parent's onEnd callback
+    onEnd?.();
+    
+    // If repeat is enabled, the video will automatically restart
+    // If repeat is disabled, manually restart the video
+    if (!repeat) {
+      if (reference.current && reference.current.seek) {
+        try {
+          reference.current.seek(0);
+          console.log(`Video restarted for ID: ${id}`);
+        } catch (error) {
+          console.error(`Error seeking video for ID ${id}:`, error);
+        }
+      } else {
+        console.warn(`Video ref not available for ID: ${id}`);
+      }
+    } else {
+      console.log(`Video will auto-repeat for ID: ${id}`);
+    }
+  };
+
+  // Expose seek method to parent component
+  React.useImperativeHandle(ref, () => ({
+    seek: (time) => {
+      if (reference.current && reference.current.seek) {
+        try {
+          reference.current.seek(time);
+          console.log(`Video seeked to ${time} for ID: ${id}`);
+        } catch (error) {
+          console.error(`Error seeking video for ID ${id}:`, error);
+        }
+      } else {
+        console.warn(`Video ref not available for ID: ${id}`);
+      }
+    },
+    restart: () => {
+      if (reference.current && reference.current.seek) {
+        try {
+          reference.current.seek(0);
+          console.log(`Video restarted for ID: ${id}`);
+        } catch (error) {
+          console.error(`Error restarting video for ID ${id}:`, error);
+        }
+      } else {
+        console.warn(`Video ref not available for ID: ${id}`);
+      }
+    }
+  }));
 
   return (
     <View style={styles.container}>
       <View style={styles.videoContainer}>
         <Video
           videoID={id}
-          ref={videoRef}
+          ref={reference}
           source={src}
-          onLoad={
-            (e) => {
-              onLoad(e);
-              // console.log('Onload Called', id+"|"+e.duration)
-            }
-          }
-          onReadyForDisplay={onReadyForDisplay}
-          onEnd={
-            ()=>{
-              onEnd?.();
-            }
-          }
+          onLoad={onLoadHandle}
+          onPlaybackStateChanged={onPlaybackStateChangedHandle}
+          onReadyForDisplay={override_onReadyForDisplay}
+          onEnd={handleVideoEnd}
+          reportBandwidth={true}
+          onBandwidthUpdate={handleBandwidth}
+          onLoadStart={(data)=>{
+            console.log(`${id} : oLoadStart------>>>>`,data);
+            onLoadReference.current = false;
+            onreadyReference.current=false;
+          }}
+          onBuffer={onBuffer}
+          onTimedMetadata={onTimedMetadataHandle}
+          // onProgress={(data) => {
+          //   onProgress?.(data);
+          //   console.log(`working$...${id}`);
+          // }}
+          progressUpdateInterval={200}
           style={styles.backgroundVideo} 
+          autoPlay={true}
           paused={isPaused}
           repeat={repeat}
           // disableFocus={false}
@@ -56,10 +180,6 @@ const VideoPlayer = ({
           // {...(Platform.OS !== 'ios' && {
           //   poster: { source: { uri: poster } },
           // })}
-          onProgress={(data) => {
-            onProgress(data);
-            // console.log('working...');
-          }}
 
           // onBandwidthUpdate={(bandwidth) => {
           //   console.log(
@@ -89,7 +209,7 @@ const VideoPlayer = ({
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

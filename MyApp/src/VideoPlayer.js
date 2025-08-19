@@ -1,14 +1,14 @@
-import { requireNativeComponent } from 'react-native';
+// import { requireNativeComponent } from 'react-native';
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const MyyExoPlayer = requireNativeComponent('MyExoPlayer');
+// const MyyExoPlayer = requireNativeComponent('MyExoPlayer');
 
 const VideoPlayer = ({ videoUrl }) => {
   return (
     <View style={styles.container}>
       <Text>MyExoPlayer PlaceHolder...</Text>
-      <MyyExoPlayer style={styles.video} videoUrl={videoUrl} />
+      {/* <MyyExoPlayer style={styles.video} videoUrl={videoUrl} /> */}
     </View>
   );
 };

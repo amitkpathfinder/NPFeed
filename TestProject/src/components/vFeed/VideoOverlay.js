@@ -130,6 +130,10 @@ Note:
     fetchAndParse();
   }, [bandWidth, src]);
 
+  useEffect(() => {
+    setSelectedUrl(src);
+    setLoading(true);
+  }, [src]);
 
  const findNearestValue = (array, target) => {
     let [closest, minDifference] = [array[0], Math.abs(target - array[0])];
@@ -144,14 +148,23 @@ Note:
   }
   
    const handleReadyForDisplay = () => {
+    console.log('handleReadyForDisplay:',custom_object);
+    
+    /*
+    setTimeout(() => {
+      setPaused(false);
+      // console.log('handleReadyForDisplay:',videoId);
+    }, 100); // slight delay ensures onLoad completes
      onReadyForDisplay?.();
+     */
+     setPaused(false);
      setIsReady(true);
      setLoading(false);
    };
  
    const handleBuffering = () => {
      onBuffer?.();
-     setLoading(true);
+     setIsBuffering(true);
      console.log('dddddddddddddddddddddddddddd');
    };
  
@@ -161,7 +174,15 @@ Note:
    };
  
    const handleOnLoad = (e) => {
+    /*
+    setPaused(false);
+     setTimeout(() => {
+       setPaused(true);
+      //  console.log('Video paused after load',videoId);
+     }, 50); // slight delay ensures onLoad completes
+     */
      onLoad?.(e);
+      // Pause the video shortly after loading
    };
 
    const handleProgress = (progress) => {
@@ -174,20 +195,26 @@ Note:
    };
  
    const handleOnEnd = () => {
-    console.log('ended Entry');
+    console.log('ended Entry',videoId);
     onEnd?.();
     if (repeat) {
-        if (Platform.OS === 'web') {
-          videoRef.current.currentTime = 0;
-        } else {
-          videoRef.current.seek(0);
-        }
+      if (Platform.OS === 'web') {
+        videoRef.current.currentTime = 0;
+      } else {
+        videoRef.current.seek(0);
+      }
+    }
+    else{
+      if (Platform.OS === 'web') {
+        videoRef.current.currentTime = 0;
       }
       else{
-        // videoRef.current.seek(0); 
-        setPaused(true);
-        setTimeout(()=>{setPaused(false)}, 0);
+        // console.log('seek 0', videoRef.getCurrentPosition());
+        //videoRef.current.seek(0);  
       }
+      setPaused(true);
+      setTimeout(()=>{setPaused(false)}, 0);
+    }
    };
  
    return (
@@ -263,3 +290,250 @@ Note:
  
  export default React.forwardRef(VideoOverlay);
  
+
+
+
+ ///////////////////////////SINGLE UNIFIED EVENT
+ /**
+ * VideoOverlay Component - Updated with single event handler
+ */
+
+// import React, { useState, useRef, useEffect } from 'react';
+// import { View, Platform, Image, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
+// import VideoWrapper from './Wrapper/VideoWrapper';
+// import { fetchManifest, extractHlsUrlsFromManifest, getBaseUrl, extractResolutionHeightsFromManifest } from './utils/utils';
+
+// const { width, height } = Dimensions.get('window');
+
+// const VideoOverlay = ({
+//   defaultImg = null,
+//   bandWidth = null,
+//   videoId = null,
+//   src = null,
+//   isPaused = true,
+//   isAutoPlay = false,
+//   muted = true,
+//   onQualityChange = null,
+//   onReadyForDisplay = null,
+//   onBuffer = null,
+//   onPlaying = null,
+//   onLoad = null,
+//   onError = null,
+//   onPlay = null,
+//   onPause = null,
+//   onEnd = null,
+//   onProgress = null,
+//   resizeMode = 'cover',
+//   controls = false,
+//   repeat = false,
+//   page_name = '',
+//   section_name = '',
+//   custom_object = '',
+//   isFullscreen = false,
+//   heightFromParent = '100%',
+//   widthFromParent = '100%',
+//   preload = true,
+//   loadingIndicatorStyle = null,
+//   playbackCB = null,
+//   currentTime,
+// }, ref) => {
+
+//   const [loading, setLoading] = useState(true);
+//   const [isBuffering, setIsBuffering] = useState(false);
+//   const [paused, setPaused] = useState(isPaused);
+//   const [isReady, setIsReady] = useState(false);
+//   const [selectedUrl, setSelectedUrl] = useState(src);
+
+//   const videoRefElement = useRef(ref);
+//   const videoRef = ref?.current ? ref : videoRefElement;
+
+//   // Keep paused state in sync
+//   useEffect(() => {
+//     setPaused(isPaused);
+//   }, [isPaused]);
+
+//   // Handle bandwidth change
+//   useEffect(() => {
+//     if (bandWidth == null) return;
+//     const fetchAndParse = async () => {
+//       try {
+//         const baseUrl = getBaseUrl(src);
+//         const manifest = await fetchManifest(src);
+//         const urls = extractHlsUrlsFromManifest(manifest);
+//         const resolutions = extractResolutionHeightsFromManifest(manifest);
+//         const matchingUrl = bandWidth
+//           ? baseUrl + urls[resolutions.indexOf(findNearestValue(resolutions, bandWidth))]
+//           : src;
+//         setSelectedUrl(matchingUrl);
+//       } catch (error) {
+//         console.error('Error fetching or parsing manifest:', error);
+//       }
+//     };
+//     fetchAndParse();
+//   }, [bandWidth, src]);
+
+//   // Reset on src change
+//   useEffect(() => {
+//     setSelectedUrl(src);
+//     setLoading(true);
+//   }, [src]);
+
+//   const findNearestValue = (array, target) => {
+//     let [closest, minDifference] = [array[0], Math.abs(target - array[0])];
+//     for (let i = 1; i < array.length; i++) {
+//       const currentDifference = Math.abs(target - array[i]);
+//       if (currentDifference === 0) return array[i];
+//       if (currentDifference < minDifference) {
+//         [closest, minDifference] = [array[i], currentDifference];
+//       }
+//     }
+//     return closest;
+//   };
+
+//   /**
+//    * Single unified video event handler
+//    */
+//   const handleVideoEvent = (eventName, payload) => {
+//     switch (eventName) {
+//       case 'ready':
+//         setPaused(false);
+//         setIsReady(true);
+//         setLoading(false);
+//         onReadyForDisplay?.(payload);
+//         break;
+
+//       case 'buffer':
+//         setIsBuffering(true);
+//         onBuffer?.(payload);
+//         break;
+
+//       case 'playing':
+//         setLoading(false);
+//         onPlaying?.(payload);
+//         break;
+
+//       case 'load':
+//         onLoad?.(payload);
+//         break;
+
+//       case 'progress':
+//         if (payload.currentTime > 1 && payload.playableDuration - payload.currentTime < 1) {
+//           setIsBuffering(true);
+//         } else {
+//           setIsBuffering(false);
+//         }
+//         onProgress?.(payload);
+//         break;
+
+//       case 'end':
+//         onEnd?.(payload);
+//         if (repeat) {
+//           if (Platform.OS === 'web') {
+//             videoRef.current.currentTime = 0;
+//           } else {
+//             videoRef.current.seek(0);
+//           }
+//         } else {
+//           if (Platform.OS === 'web') {
+//             videoRef.current.currentTime = 0;
+//           }
+//           setPaused(true);
+//           setTimeout(() => setPaused(false), 0);
+//         }
+//         break;
+
+//       case 'error':
+//         onError?.(payload);
+//         break;
+
+//       case 'play':
+//         onPlay?.(payload);
+//         break;
+
+//       case 'pause':
+//         onPause?.(payload);
+//         break;
+
+//       default:
+//         console.warn(`Unhandled video event: ${eventName}`);
+//     }
+//   };
+
+//   return (
+//     <View style={[styles.container, { height: heightFromParent, width: widthFromParent }, isFullscreen && styles.containerFull]}>
+//       <VideoWrapper
+//         id={videoId}
+//         controls={controls}
+//         refs={ref}
+//         muted={muted}
+//         paused={paused}
+//         autoPlay={isAutoPlay}
+//         resizeMode={resizeMode}
+//         src={selectedUrl}
+//         currentTime={currentTime}
+//         onQualityChange={onQualityChange}
+//         repeat={repeat}
+//         preload={preload}
+
+//         onError={(e) => handleVideoEvent('error', e)}
+//         onBuffer={(e) => handleVideoEvent('buffer', e)}
+//         onReadyForDisplay={(e) => handleVideoEvent('ready', e)}
+//         onLoad={(e) => handleVideoEvent('load', e)}
+//         onPlay={(e) => handleVideoEvent('play', e)}
+//         onPause={(e) => handleVideoEvent('pause', e)}
+//         onPlaying={(e) => handleVideoEvent('playing', e)}
+//         onProgress={(e) => handleVideoEvent('progress', e)}
+//         onEnd={(e) => handleVideoEvent('end', e)}
+
+//         page_name={page_name}
+//         section_name={section_name}
+//         custom_object={custom_object}
+//       />
+
+//       {loading && !!defaultImg && (
+//         <Image source={{ uri: defaultImg }} style={styles.backgroundImage} />
+//       )}
+
+//       {(isBuffering || loading) && (
+//         <View style={styles.loadingOverlay}>
+//           <ActivityIndicator
+//             animating={loading || isBuffering}
+//             size={loadingIndicatorStyle?.size || 'large'}
+//             color={loadingIndicatorStyle?.color || 'white'}
+//             style={loadingIndicatorStyle?.style}
+//           />
+//         </View>
+//       )}
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     backgroundColor: 'rgba(0, 0, 0, 0.8)',
+//   },
+//   containerFull: {
+//     width: width,
+//     height: height,
+//   },
+//   backgroundImage: {
+//     position: 'absolute',
+//     top: 0,
+//     left: 0,
+//     width: '100%',
+//     height: '100%',
+//     resizeMode: 'cover',
+//   },
+//   loadingOverlay: {
+//     position: 'absolute',
+//     top: 0,
+//     left: 0,
+//     right: 0,
+//     bottom: 0,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     backgroundColor: 'rgba(0, 0, 0, 0.2)',
+//   },
+// });
+
+// export default React.forwardRef(VideoOverlay);

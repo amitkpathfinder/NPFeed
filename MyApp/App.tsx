@@ -24,7 +24,7 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-import VideoPlayer from './src/VideoPlayer';
+// import VideoPlayer from './src/VideoPlayer';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -73,7 +73,7 @@ function App(): JSX.Element {
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
         <Header />
-        <VideoPlayer />
+        {/* <VideoPlayer /> */}
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,

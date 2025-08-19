@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, Platform } from 'react-native';
+import { NNVideoTrackingPlayer } from '@nnshared/nntrackingsdk';
 import VideoPlayer from '../Player';
 
 /**
@@ -37,18 +38,19 @@ import VideoPlayer from '../Player';
  * 
  */
 
-const VideoWrapper = (props, refs) => {
+const VideoWrapper = (props, ref) => {
   const {
     id = null,
     src = null,
-    paused = true,
+    paused = false,
     autoPlay = false,
-    muted = true,
+    muted = false,
     onQualityChange = null,
     onReadyForDisplay = null,
     onBuffer = null,
     onPlaying = null,
     onLoad = null,
+    onLoadStart=null,
     onError = null,
     onPlay = null,
     onPause = null,
@@ -61,44 +63,51 @@ const VideoWrapper = (props, refs) => {
     section_name = '',
     custom_object = '',
     style,
-    preload = true,
-    currentTime
+    preload = 'auto',
+    payload = null,
+    search = null,
+    page_type = null
   } = props;
 
   // **Optimized: Memoize the platform-specific component selection**
-  // const VideoComponent = useMemo(() => {
-  //   return Platform.OS === 'web' ? VideoPlayer : NNVideoTrackingPlayer;
-  // }, []);
+  const VideoComponent = useMemo(() => {
+    return Platform.OS === 'web' ? VideoPlayer : NNVideoTrackingPlayer;
+  }, []);
 
   return (
-    <VideoPlayer
+    <VideoComponent
+    // {...props}
+      BBPlayer={'BBPlayer'}
       id={id}
       controls={controls}
-      src={{ uri: src }}
-      //src={Platform.OS === 'web' ? src : undefined}
+      source={Platform.OS !== 'web' ? { uri: src} : undefined}
+      src={Platform.OS === 'web' ? src : undefined}
       style={[styles.container, style]}
-      ref={refs}
+      ref={ref}
       repeat={repeat}
       autoPlay={autoPlay}
       muted={muted}
       onEnd={onEnd}
-      currentTime={currentTime}
       onBuffer={onBuffer}
+      // onBandwidthUpdate={(e)=>{console.log('.......................Bandwidth')}}
+      // reportBandwidth={true}
+      onLoadStart={onLoadStart}
       onQualityChange={onQualityChange}
       onReadyForDisplay={onReadyForDisplay}
-      isPaused={paused}
+      paused={paused}
       onLoad={onLoad}
+      // getCurrentPosition={()=>{console.log('.......................{',data+"}")}}
       hideShutterView={true}
       // maxBitrate={10000}
       // initialBitrateEstimate={4000000}
-      onVideoResolutionChange={res => console.log('resolution',res)}
-          // videoResolution={'720p'}
+      // onVideoResolutionChange={res => console.log('resolution',res)}
+      //     videoResolution={'720p'}
       // selectedVideoTrack={{
       //   type: "resolution",
       //   value: "720"
       // }}
       onProgress={onProgress}
-      onError={onError}
+      onError={(error)=>console.log('This is an error', error)}
       resizeMode={resizeMode}
       onPlay={onPlay}
       onPause={onPause}
@@ -107,7 +116,9 @@ const VideoWrapper = (props, refs) => {
       page_name={page_name}
       section_name={section_name}
       custom_object={custom_object}
-      NPFeedPreload={true}
+      payload = {payload}
+      search = {search}
+      page_type = {page_type}
     />
   );
 };
