@@ -194,9 +194,30 @@ Note:
      onProgress?.(progress);
    };
  
+  //  const handleOnEnd = () => {
+  //   console.log('ended Entry',videoId);
+  //   onEnd?.();
+  //   if (repeat) {
+  //     if (Platform.OS === 'web') {
+  //       videoRef.current.currentTime = 0;
+  //     } else {
+  //       videoRef.current.seek(0);
+  //     }
+  //   }
+  //   else{
+  //     if (Platform.OS === 'web') {
+  //       videoRef.current.currentTime = 0;
+  //     }
+  //     else{
+  //       // console.log('seek 0', videoRef.getCurrentPosition());
+  //       //videoRef.current.seek(0);  
+  //     }
+  //     setPaused(true);
+  //     setTimeout(()=>{setPaused(false)}, 0);
+  //   }
+  //  };
+
    const handleOnEnd = () => {
-    console.log('ended Entry',videoId);
-    onEnd?.();
     if (repeat) {
       if (Platform.OS === 'web') {
         videoRef.current.currentTime = 0;
@@ -209,13 +230,16 @@ Note:
         videoRef.current.currentTime = 0;
       }
       else{
-        // console.log('seek 0', videoRef.getCurrentPosition());
-        //videoRef.current.seek(0);  
+        videoRef.current.seek(0);  
       }
       setPaused(true);
-      setTimeout(()=>{setPaused(false)}, 0);
+      // setTimeout(()=>{setPaused(isPaused)}, 0);
+      setPaused(isPaused)
     }
-   };
+    onEnd?.();
+    // setTimeout(()=>{onEnd?.();}, 0);
+  };
+
  
    return (
      <View style={[styles.container, { height: heightFromParent, width: widthFromParent }, isFullscreen && styles.containerFull]}>    

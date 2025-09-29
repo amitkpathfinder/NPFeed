@@ -1,0 +1,23 @@
+{
+    "EXPLORE_POPULAR_CITY": ["locationId"],
+    "GET_STARTED": ["id"],
+    "BROWSE_PROJECT_BY_BUDGET": ["key"],
+    "ZONES_IN_CITY": ["id"],
+    "PROPERTIES_BY_FURNISHING": ["id", "category"],
+    "PROPERTIES_BY_AVAILABLE_FOR": ["id", "category"],
+    "PROPERTIES_BY_AVAILABLE_FOR_PG": ["id", "category"],
+    "PROPERTIES_BY_SHARING": ["id", "category"],
+    "PROPERTIES_WITH_SERVICES": ["id", "category"],
+    "BROWSE_BY_POSSESSION": ["id", "category"],
+    "BROWSE_BY_PROP_TYPE": ["id", "category"],
+    "BROWSE_BY_PROP_TYPE_RENT": ["id", "category"],
+    "BROWSE_BY_PROP_TYPE_PG": ["id", "category"],
+    "BROWSE_BY_PROP_TYPE_BUY": ["id", "category"],
+    "BROWSE_BY_PROP_TYPE_LEASE": ["id", "category"],
+    "BROWSE_BY_BHK": ["id"],
+    "BROWSE_BY_SELLER_TYPE": ["id"],
+    "BROWSE_BY_PRELEASED": ["id"],
+    "BROWSE_BY_PROP_TYPE_INVEST": ["id"],
+    "BROWSE_BY_INVEST_NOW": ["id"],
+    "BROWSE_BY_LOOKING_TO_INVEST": ["id"]
+}

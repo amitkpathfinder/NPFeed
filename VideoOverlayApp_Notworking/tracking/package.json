@@ -1,0 +1,46 @@
+{
+  "name": "@nnshared/nntrackingsdk",
+  "version": "0.68.13",
+  "description": "Section name validation changes for web",
+  ".": {
+    "exports": {
+      "node": "./index.web.js",
+      "default": "./index",
+      "./NNTrackingReducer/NNTrackingReducer": "./NNTrackingReducer/NNTrackingReducer.js",
+      "./NNTrackingDataHandler/index": "./NNTrackingDataHandler/index"
+    }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "webpack --config=./webpack.config.js",
+    "prepublishOnly": "rm index.web.js && yarn bundle"
+  },
+  "author": "",
+  "license": "ISC",
+  "publishConfig": {
+    "registry": "http://nexus.99acres.com:8081/repository/nn-shared/"
+  },
+  "peerDependencies": {
+    "@react-navigation/stack": "*",
+    "@shopify/flash-list": "*",
+    "react": "*",
+    "react-native": "*",
+    "react-native-video": "*",
+    "react-native-web": "*",
+    "react-native-youtube-iframe": "*",
+    "react-redux": "*",
+    "redux": "*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.9",
+    "@babel/preset-env": "^7.20.0",
+    "@babel/preset-flow": "^7.14.5",
+    "@babel/preset-react": "^7.10.0",
+    "babel-loader": "^8.0.0",
+    "babel-plugin-react-native-web": "^0.16.3",
+    "terser-webpack-plugin": "^5.3.10",
+    "webpack": "^5.0.0",
+    "webpack-bundle-analyzer": "^4.10.2",
+    "webpack-cli": "^5.0.0"
+  }
+}

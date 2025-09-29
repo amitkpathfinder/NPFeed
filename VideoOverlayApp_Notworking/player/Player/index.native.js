@@ -1,0 +1,191 @@
+import React, { useRef, useEffect, useState } from 'react';
+import { 
+  View, 
+  StyleSheet, 
+  Platform,
+} from 'react-native';
+import Video from 'react-native-video';
+
+const VideoPlayer = React.forwardRef(({
+  id,
+  src,
+  isPaused,
+  repeat=false,
+  controls=false,
+  onBuffer,
+  poster,
+  onLoad,
+  onEnd=null,
+  onReadyForDisplay,
+  onProgress,
+  currentTime,
+  resizeMode,
+  NPFeedPreload=false
+}, ref) => {
+  // const reference = useRef(null);
+  // Handle seeking to the currentTime when the video is remounted or paused state changes
+  // useEffect(() => {
+  //   if (reference.current && currentTime > 0 && isPaused) {
+  //     // When paused, ensure we're at the right position when it gets played again
+  //     reference.current.seek(currentTime);
+  //   }
+  // }, [isPaused]);
+
+  const reference = useRef(null);
+  const onreadyReference = useRef(false);
+  const onLoadReference = useRef(false);
+
+  // local state to force pause once onReadyForDisplay is triggered
+  const [forcePaused, setForcePaused] = useState(false);
+ 
+  useEffect(() => {
+    
+    // PAUSE Tracking
+    if(reference.current && onreadyReference.current && isPaused){
+     
+      reference.current = true;
+      
+      console.log("Video Tracking : ONACTION_PLAYBACK_PAUSE : ",id);
+      // console.log(`Video playback time : ${id} `,reference.current);
+      
+    }
+    else
+    if(reference.current && onreadyReference.current && !isPaused){
+      // PLAYBACK_START
+   
+
+    console.log("Video Tracking : ONACTION_PLAYBACK_START : ",id);
+    // console.log(`Video playback time : ${id} `,reference.current);
+
+    }
+
+  },[isPaused]);
+
+  const override_onReadyForDisplay = () => {
+    // console.log('......................Entered 1', isPaused);
+    // ✅ Force pause when video becomes ready
+    // setForcePaused(true);
+
+   if (!onreadyReference.current && onLoadReference.current && !isPaused) {
+      console.log(`Video Tracking : PLAYBACK_START ${id}: onReadyForDisplay`);
+      console.log(currentTime)
+      onreadyReference.current=true;
+       console.log('......................Entered 2', isPaused);
+    } 
+    else{
+      
+      if(onReadyForDisplay) {
+        onReadyForDisplay();
+      }
+    }
+  }
+
+  const onLoadHandle = (event) => {
+    console.log(`On Load Handle received:${id}`);
+    onLoadReference.current = true;
+    if(onLoad){
+      onLoad(event);
+    }
+  };
+
+  const onPlaybackStateChangedHandle = (data) => {
+    console.log('On Playback State Changed:', data);
+  };
+
+  const onTimedMetadataHandle = (data) => {
+    console.log('onTimedMetadataHandle', data);
+  };
+
+  const handleBandwidth = (event) => {
+    console.log('Bandwidth update received:', event);
+  };
+
+  const handleVideoEnd = () => {
+      // Call the parent's onEnd callback
+      onEnd?.();
+      console.log(`Video ended for ID: ${id}`);
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.videoContainer}>
+        <Video
+          videoID={id}
+          ref={reference}
+          source={src}
+          onLoad={onLoadHandle}
+          onPlaybackStateChanged={onPlaybackStateChangedHandle}
+          onReadyForDisplay={override_onReadyForDisplay}
+          onEnd={handleVideoEnd}
+          reportBandwidth={true}
+          onBandwidthUpdate={handleBandwidth}
+          onLoadStart={(data)=>{
+            console.log(`${id} : oLoadStart------>>>>`,data);
+            onLoadReference.current = false;
+            onreadyReference.current=false;
+          }}
+          onBuffer={onBuffer}
+          onTimedMetadata={onTimedMetadataHandle}
+          // onProgress={(data) => {
+          //   onProgress?.(data);
+          //   console.log(`working$...${id}`);
+          // }}
+          progressUpdateInterval={200}
+          style={styles.backgroundVideo} 
+          autoPlay={true}
+          paused={isPaused}
+          repeat={repeat}
+          // disableFocus={false}
+          resizeMode={resizeMode}
+          
+          // {...(Platform.OS !== 'ios' && {
+          //   poster: { source: { uri: poster } },
+          // })}
+
+          // onBandwidthUpdate={(bandwidth) => {
+          //   console.log(
+          //     `Bandwidth Update - 
+          //     Current: ${bandwidth.bitrate},  ${bandwidth.height}
+          //     bps (${(bandwidth.bitrate / 1000000).toFixed(2)} Mbps)`
+          //   );
+          // }}
+          // selectedVideoTrack={{
+          //   type: "resolution",
+          //   value: 720
+          // }}
+          // onRenditionChange={(rendition) => {
+          //   if (rendition) {
+          //     setCurrentRendition(rendition);
+          //     console.log('Current Rendition:', rendition);
+          //   }
+          // }}
+          // onPlaybackStateChanged={(data)=>
+          //   {console.log('-------Isplaying',+data.isPlaying)}
+          // }
+          // reportBandwidth={true}
+          // progressUpdateInterval={5000}
+          // rate={1.0}
+          // ignoreSilentSwitch="ignore"
+        />
+      </View>
+    </View>
+  );
+});
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'transparent',
+  },
+  videoContainer: {
+    width: '100%',
+    position: 'relative',
+  },
+  backgroundVideo: {
+    width: '100%',
+    height: '100%',
+  }
+});
+
+export default VideoPlayer;

@@ -336,7 +336,7 @@ const VideoOverlayFlatList = () => {
               src={item.video}
               // controls={true}
               ref={(ref) => { videoRefs.current[item.id] = ref; }} // Store ref by ID
-              isAutoPlay={index === currentIndex}
+              isAutoPlay={false}
               defaultImg={item.defaultImg}
               isPaused={shouldBePaused}
               repeat={false}

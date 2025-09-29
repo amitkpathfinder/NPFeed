@@ -18,7 +18,7 @@ const VideoPlayer = React.forwardRef(({
   onEnd=null,
   onReadyForDisplay,
   onProgress,
-  currentTime,
+  // currentTime,
   resizeMode,
   NPFeedPreload=false
 }, ref) => {
@@ -34,6 +34,9 @@ const VideoPlayer = React.forwardRef(({
   const reference = useRef(null);
   const onreadyReference = useRef(false);
   const onLoadReference = useRef(false);
+  
+  const currentTimeRef = useRef(0);
+  const [currentTime, setCurrentTime] = useState(0);
  
   useEffect(() => {
     
@@ -44,7 +47,7 @@ const VideoPlayer = React.forwardRef(({
       
       console.log("Video Tracking : ONACTION_PLAYBACK_PAUSE : ",id);
       // console.log(`Video playback time : ${id} `,reference.current);
-      
+      console.log("Paused at:", currentTimeRef.current); 
     }
     else
     if(reference.current && onreadyReference.current && !isPaused){
@@ -53,14 +56,14 @@ const VideoPlayer = React.forwardRef(({
 
     console.log("Video Tracking : ONACTION_PLAYBACK_START : ",id);
     // console.log(`Video playback time : ${id} `,reference.current);
-
+    console.log("Paused at:", currentTimeRef.current); 
     }
 
   },[isPaused]);
 
   const override_onReadyForDisplay = () => {
     console.log('......................Entered');
-   if (!onreadyReference.current && onLoadReference.current && !isPaused) {
+   if (!onreadyReference.current) {
       console.log(`Video Tracking : PLAYBACK_START ${id}: onReadyForDisplay`);
       console.log(currentTime)
       onreadyReference.current=true;
@@ -74,7 +77,7 @@ const VideoPlayer = React.forwardRef(({
   }
 
   const onLoadHandle = (event) => {
-    console.log(`On Load Handle received:${id}`);
+    console.log(`On Load Handle received:${id}`, event);
     onLoadReference.current = true;
     if(onLoad){
       onLoad(event);
@@ -145,6 +148,10 @@ const VideoPlayer = React.forwardRef(({
     }
   }));
 
+  const onProgressHandler = (data) => {
+    currentTimeRef.current = data.currentTime; // no re-render
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.videoContainer}>
@@ -159,16 +166,16 @@ const VideoPlayer = React.forwardRef(({
           reportBandwidth={true}
           onBandwidthUpdate={handleBandwidth}
           onLoadStart={(data)=>{
-            console.log(`${id} : oLoadStart------>>>>`,data);
+            // console.log(`${id} : oLoadStart------>>>>`,data);
             onLoadReference.current = false;
             onreadyReference.current=false;
           }}
-          onBuffer={onBuffer}
+          onBuffer={()=>{console.log(`${id} : onBuffer------>>>>`);}}
           onTimedMetadata={onTimedMetadataHandle}
-          // onProgress={(data) => {
-          //   onProgress?.(data);
-          //   console.log(`working$...${id}`);
-          // }}
+          onProgress={onProgressHandler}
+          onSeek={(data)=>{
+            console.log(`${id} : onSeek------>>>>`,data);
+          }}
           progressUpdateInterval={200}
           style={styles.backgroundVideo} 
           autoPlay={true}
